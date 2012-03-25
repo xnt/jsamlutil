@@ -1,13 +1,11 @@
-I've been playing with SAML a lot lately and I've realized there're some common, simple operations which should be easily done when 
-you don't need to much customization. I mean yeah, OpenSaml rocks. But when you just want to go and create Requests or Responses
-based on other stuff... Do you really need to mess with Builders and that _every_ time? I can barely find any arguments on its 
-methods for parsing, but creating things is a whole different story.
+I've been playing with SAML a lot lately and I've realized there're some common, simple operations which should be easily done when you don't need to much customization. I mean yeah, OpenSaml rocks. But when you just want to go and create Requests or Responses based on other stuff... Do you really need to mess with Builders and that _every_ time? I can barely find any arguments on its methods for parsing, but creating things is a whole different story.
 
 So I wondered, what if we pass everything through standarized POJOs and use them as configurations? And this is my approach.
 
 Say, for example, you want to create a SAML Response. You can go like:
 
+<pre>
 Response response = responseConfig.setIssuer("myIssuer").buildSamlObject();
+</pre>
 
-And, ta-da! Now you've got a valid (I think) SAML Response, with "myIssuer" as Issuer, using the current time as issue instant, 
-and valid for 10 minutes.
+And, ta-da! Now you've got a valid (I think) SAML Response, with "myIssuer" as Issuer, using the current time as issue instant, and valid for 10 minutes.
