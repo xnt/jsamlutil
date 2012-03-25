@@ -5,7 +5,7 @@ So I wondered, what if we pass everything through standarized POJOs and use them
 Say, for example, you want to create a SAML Response. You can go like:
 
 <pre>
-Response response = responseConfig.setIssuer("myIssuer").buildSamlObject();
+Response response = samlResponseBuilder.setIssuer("myIssuer").buildSamlObject();
 </pre>
 
 And, ta-da! Now you've got a valid (I think) SAML Response, with "myIssuer" as Issuer, using the current time as issue instant, and valid for 10 minutes.
