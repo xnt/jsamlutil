@@ -1,7 +1,11 @@
 package github.xnt.jsamlutil.builders;
 
+import github.xnt.jsamlutil.utils.SetterUtils;
+
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.opensaml.common.SignableSAMLObject;
+import org.opensaml.common.impl.RandomIdentifierGenerator;
 import org.opensaml.saml2.core.impl.AssertionBuilder;
 import org.opensaml.saml2.core.impl.ConditionsBuilder;
 import org.opensaml.saml2.core.impl.IssuerBuilder;
@@ -16,7 +20,10 @@ public class SamlResponseBuilder extends SignableSamlBuilder<SamlResponseBuilder
 	private DateTime notOnOrAfter;
 	private DateTime notBefore;
 	private String issuer;
-
+	private String destination;
+	private String assertionId;
+	private final SetterUtils setterUtils = new SetterUtils();
+	
 	@Override
 	public Class<? extends SignableSAMLObject> getTarget() {
 		return Response.class;
@@ -33,8 +40,8 @@ public class SamlResponseBuilder extends SignableSamlBuilder<SamlResponseBuilder
 		Response response = builder.buildObject();
 		Assertion assertion = new AssertionBuilder().buildObject();
 		Conditions conditions = new ConditionsBuilder().buildObject();
-		Issuer samlissuer = new IssuerBuilder().buildObject();
-		samlissuer.setValue(issuer);
+		Issuer samlIssuer = new IssuerBuilder().buildObject();
+		setterUtils.setIfNotEmpty(samlIssuer, "setValue", issuer);
 		if(notBefore == null){
 			notBefore = new DateTime();
 		}
@@ -44,15 +51,27 @@ public class SamlResponseBuilder extends SignableSamlBuilder<SamlResponseBuilder
 		conditions.setNotBefore(notBefore);
 		conditions.setNotOnOrAfter(notOnOrAfter);
 		response.setIssueInstant(new DateTime());
-		response.setIssuer(samlissuer);
+		response.setIssuer(samlIssuer);
 		// TOOD use potentially different variables, keep this as a default
-		samlissuer = new IssuerBuilder().buildObject();
-		samlissuer.setValue(issuer);
-		assertion.setIssuer(samlissuer);
+		samlIssuer = new IssuerBuilder().buildObject();
+		setterUtils.setIfNotEmpty(samlIssuer, "setValue", issuer);
+		assertion.setIssuer(samlIssuer);
 		assertion.setConditions(conditions);
+		assertion.setID(getOrGenerateIdentifier());
+		setterUtils.setIfNotEmpty(response, "setDestination", destination);
+		
 		response.getAssertions().add(assertion);
 		return response;
 	}
+	
+	String getOrGenerateIdentifier(){ // TODO I think this will go to a general util or something...
+		if(StringUtils.isBlank(assertionId)){
+			RandomIdentifierGenerator idGenerator = new RandomIdentifierGenerator();
+			return idGenerator.generateIdentifier();
+		}
+		return assertionId;
+	}
+	
 
 	public DateTime getNotOnOrAfter() {
 		return notOnOrAfter;
@@ -78,6 +97,24 @@ public class SamlResponseBuilder extends SignableSamlBuilder<SamlResponseBuilder
 
 	public SamlResponseBuilder setIssuer(String issuer) {
 		this.issuer = issuer;
+		return this;
+	}
+
+	public String getDestination() {
+		return destination;
+	}
+
+	public SamlResponseBuilder setDestination(String destination) {
+		this.destination = destination;
+		return this;
+	}
+
+	public String getAssertionId() {
+		return assertionId;
+	}
+
+	public SamlResponseBuilder setAssertionId(String assertionId) {
+		this.assertionId = assertionId;
 		return this;
 	}
 	
